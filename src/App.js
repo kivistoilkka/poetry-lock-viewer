@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 const App = () => {
-  const [packages, setPackages] = useState([])
+  const [allPackages, setAllPackages] = useState({})
 
   const parseExtras = (lines, reverseDependency) => {
     const endIndex = lines.indexOf('')
@@ -48,6 +48,8 @@ const App = () => {
     const packageObject = {
       name: packageName,
       description: description,
+      reverseDependencies: [],
+      installedDependency: true,
     }
 
     const dependenciesIndex = lines.indexOf('[package.dependencies]')
@@ -64,21 +66,47 @@ const App = () => {
       extras = parseExtras(lines.slice(extrasIndex), packageName)
     }
     packageObject.dependencies = dependencies.concat(extras)
-    console.log(packageObject)
     return packageObject
   }
 
   const parseTOML = (text) => {
     const packagePart = text.split('[metadata]')[0]
-    const packages = packagePart.split('[[package]]').splice(1)
-    return packages.map((pckg) => parsePackage(pckg.split('\n').splice(1)))
+    const individualPackages = packagePart.split('[[package]]').splice(1)
+    const packageObjects = individualPackages.map((pckg) =>
+      parsePackage(pckg.split('\n').splice(1))
+    )
+    const pckgs = {}
+    packageObjects.forEach((pckg) => {
+      pckgs[pckg.name] = {
+        name: pckg.name,
+        description: pckg.description,
+        dependencies: pckg.dependencies,
+        reverseDependencies: pckg.reverseDependencies,
+        installedDependency: pckg.installedDependency,
+      }
+      pckg.dependencies.forEach((dependency) => {
+        if (!pckgs[dependency.name]) {
+          pckgs[dependency.name] = {
+            name: dependency.name,
+            description: '',
+            dependencies: [],
+            reverseDependencies: [],
+            installedDependency: false,
+          }
+        }
+        const oldRevDependencyArray = pckgs[dependency.name].reverseDependencies
+        pckgs[dependency.name].reverseDependencies =
+          oldRevDependencyArray.concat(dependency.reverseDependency)
+      })
+    })
+    return pckgs
   }
 
   const handleFileOpen = (event) => {
     const reader = new FileReader()
     reader.onload = (event) => {
       const text = event.target.result
-      setPackages(parseTOML(text))
+      setAllPackages(parseTOML(text))
     }
     reader.readAsText(event.target.files[0])
   }
@@ -87,11 +115,23 @@ const App = () => {
     <div>
       <input type="file" onChange={handleFileOpen}></input>
       <p>
-        {packages.map((pckg) => (
-          <li key={pckg.name}>
-            <b>{pckg.name}</b>: {pckg.description}
-          </li>
-        ))}
+        {console.log(allPackages)}
+        {Object.values(allPackages)
+          .filter((pckg) => pckg.installedDependency)
+          .sort((a, b) => {
+            if (a.name.toLowerCase() < b.name.toLowerCase()) {
+              return -1
+            }
+            if (a.name.toLowerCase() > b.name.toLowerCase()) {
+              return 1
+            }
+            return 0
+          })
+          .map((pckg) => (
+            <li key={pckg.name}>
+              <b>{pckg.name}</b>: {pckg.description}
+            </li>
+          ))}
       </p>
     </div>
   )
