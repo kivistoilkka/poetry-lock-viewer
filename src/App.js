@@ -1,7 +1,20 @@
 import { useState } from 'react'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  Navigate,
+} from 'react-router-dom'
+import PackageList from './components/PackageList'
+import PackageInfo from './components/PackageInfo'
 
 const App = () => {
   const [allPackages, setAllPackages] = useState({})
+
+  const padding = {
+    padding: 5,
+  }
 
   const parseExtras = (lines, reverseDependency) => {
     const endIndex = lines.indexOf('')
@@ -111,29 +124,32 @@ const App = () => {
     reader.readAsText(event.target.files[0])
   }
 
+  //TODO: Fix parsing, eg. in example file pycparser does not have cffi as a reverse dependency
+  //TODO: Fix rendering, sometimes there are duplicates of one dependency (eg. two typed-ast are rendered in mypy page from example file)
+  console.log(allPackages)
   return (
-    <div>
-      <input type="file" onChange={handleFileOpen}></input>
-      <p>
-        {console.log(allPackages)}
-        {Object.values(allPackages)
-          .filter((pckg) => pckg.installedDependency)
-          .sort((a, b) => {
-            if (a.name.toLowerCase() < b.name.toLowerCase()) {
-              return -1
-            }
-            if (a.name.toLowerCase() > b.name.toLowerCase()) {
-              return 1
-            }
-            return 0
-          })
-          .map((pckg) => (
-            <li key={pckg.name}>
-              <b>{pckg.name}</b>: {pckg.description}
-            </li>
-          ))}
-      </p>
-    </div>
+    <Router>
+      <div>
+        <Link style={padding} to="/">
+          Home
+        </Link>
+        <input style={padding} type="file" onChange={handleFileOpen}></input>
+      </div>
+
+      <Routes>
+        <Route path="/" element={<PackageList allPackages={allPackages} />} />
+        <Route
+          path="/packages/:name"
+          element={
+            Object.keys(allPackages).length > 0 ? (
+              <PackageInfo allPackages={allPackages} />
+            ) : (
+              <Navigate replace to="/" />
+            )
+          }
+        />
+      </Routes>
+    </Router>
   )
 }
 
