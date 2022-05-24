@@ -26,7 +26,6 @@ const App = () => {
     reader.readAsText(event.target.files[0])
   }
 
-  //TODO: Fix rendering, sometimes there are duplicates of one dependency (eg. two typed-ast are rendered in mypy page from example file)
   console.log(allPackages)
   return (
     <Router>

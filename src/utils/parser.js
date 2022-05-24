@@ -1,4 +1,4 @@
-const parseExtras = (lines) => {
+const parseExtras = (lines, dependencyNames) => {
   const endIndex = lines.indexOf('')
   const extrasLines = lines.slice(1, endIndex)
   const allExtras = extrasLines
@@ -11,7 +11,10 @@ const parseExtras = (lines) => {
     })
     .flat()
   const uniqueExtras = [...new Set(allExtras)]
-  return uniqueExtras.map((pckg) => {
+  const filteredExtras = uniqueExtras.filter(
+    (extra) => !dependencyNames.includes(extra)
+  )
+  return filteredExtras.map((pckg) => {
     return {
       name: pckg,
       optional: true,
@@ -52,7 +55,10 @@ const parsePackage = (lines) => {
   const extrasIndex = lines.indexOf('[package.extras]')
   let extras = []
   if (extrasIndex >= 0) {
-    extras = parseExtras(lines.slice(extrasIndex))
+    extras = parseExtras(
+      lines.slice(extrasIndex),
+      dependencies.map((d) => d.name)
+    )
   }
 
   return { ...packageObject, dependencies: dependencies.concat(extras) }
