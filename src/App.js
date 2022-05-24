@@ -26,7 +26,10 @@ const App = () => {
     reader.readAsText(event.target.files[0])
   }
 
+  // REMEMBER TO REMOVE! ////////////////////////////////////////////////////////////
   console.log(allPackages)
+  ///////////////////////////////////////////////////////////////////////////////////
+
   return (
     <Router>
       <h1>Poetry package dependency viewer</h1>

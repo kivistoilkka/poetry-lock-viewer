@@ -33,11 +33,15 @@ const PackageInfo = ({ allPackages }) => {
           }
           return 0
         })
-        .map((pckg) => (
-          <li key={pckg.name}>
-            <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
-          </li>
-        ))}
+        .map((pckg) =>
+          !pckg.optional || allPackages[pckg.name].installedDependency ? (
+            <li key={pckg.name}>
+              <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
+            </li>
+          ) : (
+            <li key={pckg.name}>{pckg.name}</li>
+          )
+        )}
       <p>
         <i>Reverse dependencies:</i>
       </p>
