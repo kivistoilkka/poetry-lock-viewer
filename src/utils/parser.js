@@ -26,7 +26,7 @@ const parseDependencies = (lines) => {
   const endIndex = lines.indexOf('')
   const dependencyLines = lines.slice(1, endIndex)
   const dependencies = dependencyLines.map((line) => {
-    const name = line.split(' = ')[0].toLowerCase()
+    const name = line.split(' = ')[0].toLowerCase().replaceAll('"', '')
     const optional = /(optional = true)/.test(line)
     return { name, optional }
   })

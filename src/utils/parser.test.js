@@ -135,3 +135,45 @@ test('keyring brach, secretstorage is saved only once', () => {
   expect(names).toContain('secretstorage')
   expect(names).not.toContain('SecretStorage')
 })
+
+const backports_django_branch = `
+[[package]]
+name = "backports.zoneinfo"
+version = "0.2.1"
+description = "Backport of the standard library zoneinfo module"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.extras]
+tzdata = ["tzdata"]
+
+[[package]]
+name = "django"
+version = "4.0.4"
+description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+asgiref = ">=3.4.1,<4"
+"backports.zoneinfo" = {version = "*", markers = "python_version < \"3.9\""}
+sqlparse = ">=0.2.2"
+tzdata = {version = "*", markers = "sys_platform == \"win32\""}
+
+[package.extras]
+argon2 = ["argon2-cffi (>=19.1.0)"]
+bcrypt = ["bcrypt"]
+
+
+[metadata]
+
+`
+
+test('django brach, backports.zoneinfo is saved only once without quotation marks', () => {
+  const packages = parseTOML(backports_django_branch)
+  const names = Object.keys(packages)
+  expect(names).toContain('backports.zoneinfo')
+  expect(names).not.toContain('"backports.zoneinfo"')
+})
