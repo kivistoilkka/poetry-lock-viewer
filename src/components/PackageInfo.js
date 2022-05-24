@@ -1,14 +1,20 @@
+import { useState } from 'react'
 import {
-  TableBody,
-  TableContainer,
-  Table,
-  TableRow,
-  Paper,
-  TableCell,
+  List,
+  ListSubheader,
+  ListItemButton,
+  ListItemText,
+  Collapse,
 } from '@mui/material'
+import ExpandLess from '@mui/icons-material/ExpandLess'
+import ExpandMore from '@mui/icons-material/ExpandMore'
 import { useParams, Link } from 'react-router-dom'
 
 const PackageInfo = ({ allPackages }) => {
+  const [openDependencies, setOpenDependencies] = useState(false)
+  const [openOptional, setOpenOptional] = useState(false)
+  const [openReverse, setOpenReverse] = useState(false)
+
   const name = useParams().name
   const packageToView = allPackages[name]
 
@@ -39,74 +45,81 @@ const PackageInfo = ({ allPackages }) => {
     <div>
       <h2>{name}</h2>
       <p>{packageToView.description}</p>
-      <p>
-        <b>
-          <i>Dependencies:</i>
-        </b>
-      </p>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableBody>
+
+      <List
+        sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
+        component="nav"
+        aria-labelledby="nested-list-subheader"
+        subheader={
+          <ListSubheader component="div" id="nested-list-subheader">
+            Package dependencies
+          </ListSubheader>
+        }
+      >
+        <ListItemButton onClick={() => setOpenDependencies(!openDependencies)}>
+          <ListItemText primary="Dependencies" />
+          {openDependencies ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openDependencies} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
             {dependencies
               .filter((d) => !d.optional)
               .map((pckg) => (
-                <TableRow key={pckg.name}>
-                  <TableCell>
-                    <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
-                  </TableCell>
-                </TableRow>
+                <ListItemButton sx={{ pl: 4 }} key={pckg.name}>
+                  <ListItemText
+                    primary={
+                      <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
+                    }
+                  />
+                </ListItemButton>
               ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </List>
+        </Collapse>
 
-      <p>
-        <b>
-          <i>Optional dependecies:</i>
-        </b>
-      </p>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableBody>
+        <ListItemButton onClick={() => setOpenOptional(!openOptional)}>
+          <ListItemText primary="Optional dependencies" />
+          {openOptional ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openOptional} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
             {dependencies
               .filter((d) => d.optional)
               .map((pckg) =>
                 allPackages[pckg.name].installedDependency ? (
-                  <TableRow key={pckg.name}>
-                    <TableCell>
-                      <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
-                    </TableCell>
-                  </TableRow>
+                  <ListItemButton sx={{ pl: 4 }} key={pckg.name}>
+                    <ListItemText
+                      primary={
+                        <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
+                      }
+                    />
+                  </ListItemButton>
                 ) : (
-                  <TableRow key={pckg.name}>
-                    <TableCell>{pckg.name}</TableCell>
-                  </TableRow>
+                  <ListItemButton sx={{ pl: 4 }} key={pckg.name}>
+                    <ListItemText primary={pckg.name} />
+                  </ListItemButton>
                 )
               )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </List>
+        </Collapse>
 
-      <p>
-        <b>
-          <i>Reverse dependencies:</i>
-        </b>
-      </p>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableBody>
+        <ListItemButton onClick={() => setOpenReverse(!openReverse)}>
+          <ListItemText primary="Reverse dependencies" />
+          {openReverse ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openReverse} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
             {Object.values(packageToView.reverseDependencies)
               .sort()
               .map((name) => (
-                <TableRow key={name}>
-                  <TableCell>
-                    <Link to={`/packages/${name}`}>{name}</Link>
-                  </TableCell>
-                </TableRow>
+                <ListItemButton sx={{ pl: 4 }} key={name}>
+                  <ListItemText
+                    primary={<Link to={`/packages/${name}`}>{name}</Link>}
+                  />
+                </ListItemButton>
               ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </List>
+        </Collapse>
+      </List>
     </div>
   )
 }
