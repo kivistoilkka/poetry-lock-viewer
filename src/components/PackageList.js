@@ -1,15 +1,37 @@
+import {
+  TableContainer,
+  Table,
+  TableBody,
+  Paper,
+  TableRow,
+  TableCell,
+} from '@mui/material'
 import { Link } from 'react-router-dom'
 
 const PackageList = ({ allPackages }) => {
+  const sortedPackages = Object.values(allPackages)
+    .filter((pckg) => pckg.installedDependency)
+    .sort((a, b) => {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1
+      }
+      if (a.name.toLowerCase() > b.name.toLowerCase()) {
+        return 1
+      }
+      return 0
+    })
+
   const renderPackageLine = (pckg) => {
     if (pckg.installedDependency) {
       return (
-        <li key={pckg.name}>
-          <Link to={`/packages/${pckg.name}`}>
-            <b>{pckg.name}</b>
-          </Link>
-          : {pckg.description}
-        </li>
+        <TableRow key={pckg.name}>
+          <TableCell>
+            <Link to={`/packages/${pckg.name}`}>
+              <b>{pckg.name}</b>
+            </Link>
+          </TableCell>
+          <TableCell>{pckg.description}</TableCell>
+        </TableRow>
       )
     }
     return (
@@ -20,22 +42,20 @@ const PackageList = ({ allPackages }) => {
   }
 
   const renderPackageList = () => {
-    return Object.values(allPackages)
-      .filter((pckg) => pckg.installedDependency)
-      .sort((a, b) => {
-        if (a.name.toLowerCase() < b.name.toLowerCase()) {
-          return -1
-        }
-        if (a.name.toLowerCase() > b.name.toLowerCase()) {
-          return 1
-        }
-        return 0
-      })
-      .map((pckg) => renderPackageLine(pckg))
+    return (
+      <TableContainer component={Paper}>
+        <Table>
+          <TableBody>
+            {sortedPackages.map((pckg) => renderPackageLine(pckg))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    )
   }
   return (
     <div>
       <h2>Installed packages</h2>
+
       {Object.keys(allPackages).length > 0 ? (
         renderPackageList()
       ) : (

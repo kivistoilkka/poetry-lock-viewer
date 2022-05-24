@@ -6,6 +6,17 @@ import {
   Link,
   Navigate,
 } from 'react-router-dom'
+import {
+  Container,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Button,
+  Input,
+  createTheme,
+  ThemeProvider,
+} from '@mui/material'
+import { teal, green } from '@mui/material/colors'
 import PackageList from './components/PackageList'
 import PackageInfo from './components/PackageInfo'
 import parseTOML from './utils/parser'
@@ -13,9 +24,12 @@ import parseTOML from './utils/parser'
 const App = () => {
   const [allPackages, setAllPackages] = useState({})
 
-  const padding = {
-    padding: 5,
-  }
+  const theme = createTheme({
+    palette: {
+      primary: teal,
+      secondary: green,
+    },
+  })
 
   const handleFileOpen = (event) => {
     const reader = new FileReader()
@@ -31,29 +45,51 @@ const App = () => {
   ///////////////////////////////////////////////////////////////////////////////////
 
   return (
-    <Router>
-      <h1>Poetry package dependency viewer</h1>
-      <div>
-        <Link style={padding} to="/">
-          Home
-        </Link>
-        <input style={padding} type="file" onChange={handleFileOpen}></input>
-      </div>
+    <ThemeProvider theme={theme}>
+      <Container>
+        <Router>
+          <div>
+            <AppBar position="static">
+              <Toolbar>
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="menu"
+                ></IconButton>
+                <Button color="inherit" component={Link} to="/">
+                  Home
+                </Button>
+                <Input
+                  variant="contained"
+                  type="file"
+                  accept=".lock"
+                  onChange={handleFileOpen}
+                ></Input>
+              </Toolbar>
+            </AppBar>
+          </div>
 
-      <Routes>
-        <Route path="/" element={<PackageList allPackages={allPackages} />} />
-        <Route
-          path="/packages/:name"
-          element={
-            Object.keys(allPackages).length > 0 ? (
-              <PackageInfo allPackages={allPackages} />
-            ) : (
-              <Navigate replace to="/" />
-            )
-          }
-        />
-      </Routes>
-    </Router>
+          <h1>Poetry package dependency viewer</h1>
+
+          <Routes>
+            <Route
+              path="/"
+              element={<PackageList allPackages={allPackages} />}
+            />
+            <Route
+              path="/packages/:name"
+              element={
+                Object.keys(allPackages).length > 0 ? (
+                  <PackageInfo allPackages={allPackages} />
+                ) : (
+                  <Navigate replace to="/" />
+                )
+              }
+            />
+          </Routes>
+        </Router>
+      </Container>
+    </ThemeProvider>
   )
 }
 

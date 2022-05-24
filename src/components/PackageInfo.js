@@ -1,3 +1,11 @@
+import {
+  TableBody,
+  TableContainer,
+  Table,
+  TableRow,
+  Paper,
+  TableCell,
+} from '@mui/material'
 import { useParams, Link } from 'react-router-dom'
 
 const PackageInfo = ({ allPackages }) => {
@@ -32,43 +40,73 @@ const PackageInfo = ({ allPackages }) => {
       <h2>{name}</h2>
       <p>{packageToView.description}</p>
       <p>
-        <i>Dependencies:</i>
+        <b>
+          <i>Dependencies:</i>
+        </b>
       </p>
-      {dependencies
-        .filter((d) => !d.optional)
-        .map((pckg) =>
-          !pckg.optional || allPackages[pckg.name].installedDependency ? (
-            <li key={pckg.name}>
-              <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
-            </li>
-          ) : (
-            <li key={pckg.name}>{pckg.name}</li>
-          )
-        )}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableBody>
+            {dependencies
+              .filter((d) => !d.optional)
+              .map((pckg) => (
+                <TableRow key={pckg.name}>
+                  <TableCell>
+                    <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
       <p>
-        <i>Optional dependecies:</i>
+        <b>
+          <i>Optional dependecies:</i>
+        </b>
       </p>
-      {dependencies
-        .filter((d) => d.optional)
-        .map((pckg) =>
-          allPackages[pckg.name].installedDependency ? (
-            <li key={pckg.name}>
-              <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
-            </li>
-          ) : (
-            <li key={pckg.name}>{pckg.name}</li>
-          )
-        )}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableBody>
+            {dependencies
+              .filter((d) => d.optional)
+              .map((pckg) =>
+                allPackages[pckg.name].installedDependency ? (
+                  <TableRow key={pckg.name}>
+                    <TableCell>
+                      <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <TableRow key={pckg.name}>
+                    <TableCell>{pckg.name}</TableCell>
+                  </TableRow>
+                )
+              )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
       <p>
-        <i>Reverse dependencies:</i>
+        <b>
+          <i>Reverse dependencies:</i>
+        </b>
       </p>
-      {Object.values(packageToView.reverseDependencies)
-        .sort()
-        .map((name) => (
-          <li key={name}>
-            <Link to={`/packages/${name}`}>{name}</Link>
-          </li>
-        ))}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableBody>
+            {Object.values(packageToView.reverseDependencies)
+              .sort()
+              .map((name) => (
+                <TableRow key={name}>
+                  <TableCell>
+                    <Link to={`/packages/${name}`}>{name}</Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   )
 }
