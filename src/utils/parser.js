@@ -1,4 +1,4 @@
-const parseExtras = (lines, reverseDependency) => {
+const parseExtras = (lines) => {
   const endIndex = lines.indexOf('')
   const extrasLines = lines.slice(1, endIndex)
   const allExtras = extrasLines
@@ -15,25 +15,24 @@ const parseExtras = (lines, reverseDependency) => {
     return {
       name: pckg,
       optional: true,
-      reverseDependency,
     }
   })
 }
 
-const parseDependencies = (lines, reverseDependency) => {
+const parseDependencies = (lines) => {
   const endIndex = lines.indexOf('')
   const dependencyLines = lines.slice(1, endIndex)
   const dependencies = dependencyLines.map((line) => {
     const name = line.split(' = ')[0]
     const optional = /(optional = true)/.test(line)
-    return { name, optional, reverseDependency }
+    return { name, optional }
   })
   return dependencies
 }
 
 const parsePackage = (lines) => {
   const packageName = lines
-    .find((line) => /^(name).*/.exec(line))
+    .find((line) => /^(name = ).*/.exec(line))
     .replace('name = "', '')
     .replace('"', '')
   const description = lines
@@ -43,25 +42,20 @@ const parsePackage = (lines) => {
   const packageObject = {
     name: packageName,
     description: description,
-    reverseDependencies: [],
-    installedDependency: true,
   }
 
   const dependenciesIndex = lines.indexOf('[package.dependencies]')
   let dependencies = []
   if (dependenciesIndex >= 0) {
-    dependencies = parseDependencies(
-      lines.slice(dependenciesIndex),
-      packageName
-    )
+    dependencies = parseDependencies(lines.slice(dependenciesIndex))
   }
   const extrasIndex = lines.indexOf('[package.extras]')
   let extras = []
   if (extrasIndex >= 0) {
-    extras = parseExtras(lines.slice(extrasIndex), packageName)
+    extras = parseExtras(lines.slice(extrasIndex))
   }
-  packageObject.dependencies = dependencies.concat(extras)
-  return packageObject
+
+  return { ...packageObject, dependencies: dependencies.concat(extras) }
 }
 
 const parseTOML = (text) => {
@@ -72,12 +66,21 @@ const parseTOML = (text) => {
   )
   const pckgs = {}
   packageObjects.forEach((pckg) => {
-    pckgs[pckg.name] = {
-      name: pckg.name,
-      description: pckg.description,
-      dependencies: pckg.dependencies,
-      reverseDependencies: pckg.reverseDependencies,
-      installedDependency: pckg.installedDependency,
+    if (!pckgs[pckg.name])
+      pckgs[pckg.name] = {
+        name: pckg.name,
+        description: pckg.description,
+        dependencies: pckg.dependencies,
+        reverseDependencies: [],
+        installedDependency: true,
+      }
+    else {
+      pckgs[pckg.name] = {
+        ...pckgs[pckg.name],
+        description: pckg.description,
+        dependencies: pckg.dependencies,
+        installedDependency: true,
+      }
     }
     pckg.dependencies.forEach((dependency) => {
       if (!pckgs[dependency.name]) {
@@ -89,10 +92,12 @@ const parseTOML = (text) => {
           installedDependency: false,
         }
       }
-      const oldRevDependencyArray = pckgs[dependency.name].reverseDependencies
-      pckgs[dependency.name].reverseDependencies = oldRevDependencyArray.concat(
-        dependency.reverseDependency
-      )
+      pckgs[dependency.name] = {
+        ...pckgs[dependency.name],
+        reverseDependencies: pckgs[dependency.name].reverseDependencies.concat(
+          pckg.name
+        ),
+      }
     })
   })
   return pckgs
