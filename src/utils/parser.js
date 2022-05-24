@@ -110,4 +110,4 @@ const parseTOML = (text) => {
   return pckgs
 }
 
-module.exports = parseTOML
+export default parseTOML
