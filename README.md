@@ -1,4 +1,6 @@
-# Getting Started with Create React App
+# Poetry lock file viewer app
+
+Application is deployed to [Heroku](https://poetry-lock-viewer.herokuapp.com/) using [Heroku buildpack](https://github.com/mars/create-react-app-buildpack).
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
