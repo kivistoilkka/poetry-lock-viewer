@@ -4,17 +4,28 @@ const PackageInfo = ({ allPackages }) => {
   const name = useParams().name
   const packageToView = allPackages[name]
 
-  const viewProjectLink = () => {
-    if (packageToView.installedDependency) {
-      return (
-        <li key={name}>
-          <b>
-            <Link to={`/`}>Project</Link>
-          </b>
-        </li>
-      )
-    }
+  if (!packageToView) {
+    return (
+      <div>
+        <h2>Not found</h2>
+        <p>
+          Package <i>{name}</i> could not be found.
+        </p>
+      </div>
+    )
   }
+
+  const dependencies = Object.values(packageToView.dependencies).sort(
+    (a, b) => {
+      if (a.name.toLowerCase() < b.name.toLowerCase()) {
+        return -1
+      }
+      if (a.name.toLowerCase() > b.name.toLowerCase()) {
+        return 1
+      }
+      return 0
+    }
+  )
 
   return (
     <div>
@@ -23,16 +34,8 @@ const PackageInfo = ({ allPackages }) => {
       <p>
         <i>Dependencies:</i>
       </p>
-      {Object.values(packageToView.dependencies)
-        .sort((a, b) => {
-          if (a.name.toLowerCase() < b.name.toLowerCase()) {
-            return -1
-          }
-          if (a.name.toLowerCase() > b.name.toLowerCase()) {
-            return 1
-          }
-          return 0
-        })
+      {dependencies
+        .filter((d) => !d.optional)
         .map((pckg) =>
           !pckg.optional || allPackages[pckg.name].installedDependency ? (
             <li key={pckg.name}>
@@ -43,9 +46,22 @@ const PackageInfo = ({ allPackages }) => {
           )
         )}
       <p>
+        <i>Optional dependecies:</i>
+      </p>
+      {dependencies
+        .filter((d) => d.optional)
+        .map((pckg) =>
+          allPackages[pckg.name].installedDependency ? (
+            <li key={pckg.name}>
+              <Link to={`/packages/${pckg.name}`}>{pckg.name}</Link>
+            </li>
+          ) : (
+            <li key={pckg.name}>{pckg.name}</li>
+          )
+        )}
+      <p>
         <i>Reverse dependencies:</i>
       </p>
-      {viewProjectLink()}
       {Object.values(packageToView.reverseDependencies)
         .sort()
         .map((name) => (

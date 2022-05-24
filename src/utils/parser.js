@@ -16,7 +16,7 @@ const parseExtras = (lines, dependencyNames) => {
   )
   return filteredExtras.map((pckg) => {
     return {
-      name: pckg,
+      name: pckg.toLowerCase(),
       optional: true,
     }
   })
@@ -26,7 +26,7 @@ const parseDependencies = (lines) => {
   const endIndex = lines.indexOf('')
   const dependencyLines = lines.slice(1, endIndex)
   const dependencies = dependencyLines.map((line) => {
-    const name = line.split(' = ')[0]
+    const name = line.split(' = ')[0].toLowerCase()
     const optional = /(optional = true)/.test(line)
     return { name, optional }
   })
@@ -38,6 +38,7 @@ const parsePackage = (lines) => {
     .find((line) => /^(name = ).*/.exec(line))
     .replace('name = "', '')
     .replace('"', '')
+    .toLowerCase()
   const description = lines
     .find((line) => /^(description).*/.exec(line))
     .replace('description = "', '')
