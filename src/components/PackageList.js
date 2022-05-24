@@ -5,6 +5,7 @@ import {
   Paper,
   TableRow,
   TableCell,
+  Typography,
 } from '@mui/material'
 import { Link } from 'react-router-dom'
 
@@ -54,12 +55,16 @@ const PackageList = ({ allPackages }) => {
   }
   return (
     <div>
-      <h2>Installed packages</h2>
+      <Typography variant="h4" component="h2">
+        Installed packages
+      </Typography>
 
       {Object.keys(allPackages).length > 0 ? (
         renderPackageList()
       ) : (
-        <p>Please select the file</p>
+        <Typography variant="body1" component="div">
+          Please select the file
+        </Typography>
       )}
     </div>
   )

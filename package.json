@@ -1,5 +1,5 @@
 {
-  "name": "poetry_lock_package_info",
+  "name": "poetry_lock_viewer",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

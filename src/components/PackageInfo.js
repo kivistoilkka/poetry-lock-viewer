@@ -5,6 +5,7 @@ import {
   ListItemButton,
   ListItemText,
   Collapse,
+  Typography,
 } from '@mui/material'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
@@ -21,10 +22,12 @@ const PackageInfo = ({ allPackages }) => {
   if (!packageToView) {
     return (
       <div>
-        <h2>Not found</h2>
-        <p>
+        <Typography variant="h4" component="h2">
+          Not found
+        </Typography>
+        <Typography variant="body1" component="div">
           Package <i>{name}</i> could not be found.
-        </p>
+        </Typography>
       </div>
     )
   }
@@ -43,8 +46,12 @@ const PackageInfo = ({ allPackages }) => {
 
   return (
     <div>
-      <h2>{name}</h2>
-      <p>{packageToView.description}</p>
+      <Typography variant="h4" component="h2">
+        {name}
+      </Typography>
+      <Typography variant="body1" component="div">
+        {packageToView.description}
+      </Typography>
 
       <List
         sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}

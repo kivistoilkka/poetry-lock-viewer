@@ -15,6 +15,7 @@ import {
   Input,
   createTheme,
   ThemeProvider,
+  Typography,
 } from '@mui/material'
 import { teal, green } from '@mui/material/colors'
 import PackageList from './components/PackageList'
@@ -39,10 +40,6 @@ const App = () => {
     }
     reader.readAsText(event.target.files[0])
   }
-
-  // REMEMBER TO REMOVE! ////////////////////////////////////////////////////////////
-  console.log(allPackages)
-  ///////////////////////////////////////////////////////////////////////////////////
 
   return (
     <ThemeProvider theme={theme}>
@@ -69,7 +66,9 @@ const App = () => {
             </AppBar>
           </div>
 
-          <h1>Poetry package dependency viewer</h1>
+          <Typography variant="h3" component="h1">
+            Poetry lock file viewer
+          </Typography>
 
           <Routes>
             <Route
